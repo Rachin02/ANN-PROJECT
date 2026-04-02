@@ -3,12 +3,11 @@ import pickle
 import pandas as pd
 import numpy as np
 import streamlit as st
-from tensorflow.keras.models import load_model
 
 # source /Users/rachin/Desktop/rachin/ai/bin/activate
 
 # load model
-model = load_model('model.h5')
+model = tensorflow.keras.models.load_model('model.h5')
 
 #load encoder and scaler
 with open('lr_gender.pkl','rb') as file:
@@ -40,21 +39,25 @@ is_active_member = st.selectbox("Is active member",[0,1])
 
 #prepare input data
 
-input_data = {
+input_data = pd.DataFrame({
     'CreditScore' : [credit_score],
     'Gender' : [gender],
     'Age' : [age],
     'Tenure' : [tenure],
     'Balance' : [balance],
     'NumOfProducts' : [num_of_products],
-    'hasCrCard' : [has_credit],
-    'isActiveMember' : [is_active_member],
-    'Estimated_salary' : [estimated_salary]
-}
+    'HasCrCard' : [has_credit],
+    'IsActiveMember' : [is_active_member],
+    'EstimatedSalary' : [estimated_salary]
+})
+
+input_data['Gender'] = label_gender.transform(input_data['Gender'])
 
 
 # One-hot encode 'Geography'
-geo_encoded = label_geo.transform([[geography]]).toarray()
+geo_encoded = label_geo.transform([[geography]])
+if hasattr(geo_encoded, 'toarray'):
+    geo_encoded = geo_encoded.toarray()
 geo_encoded_df = pd.DataFrame(geo_encoded, columns=label_geo.get_feature_names_out(['Geography']))
 
 # Combine one-hot encoded columns with input data
